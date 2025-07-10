@@ -4,7 +4,7 @@ namespace SmartFeedbackAPI.Models;
 public class Feedback
 {
     public int Id { get; set; }
-     [Required]
+    [Required]
     public string Heading { get; set; } = string.Empty;
 
     [Required]

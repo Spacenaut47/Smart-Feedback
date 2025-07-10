@@ -13,8 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlite("Data Source=smartfeedback.db"));
-
+{
+    var connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddScoped<TokenService>();
 
