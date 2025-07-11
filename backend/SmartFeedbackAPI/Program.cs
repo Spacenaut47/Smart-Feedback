@@ -39,24 +39,39 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "https://smartfeedback-backend.onrender.com/"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Admin"));
-});
 
 var app = builder.Build();
 
+//Add Logging for CORS
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"Request from Origin: {context.Request.Headers["Origin"]}");
+    await next.Invoke();
+});
 
-app.UseCors();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
