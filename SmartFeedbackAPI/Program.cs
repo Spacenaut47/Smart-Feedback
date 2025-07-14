@@ -14,9 +14,10 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    var connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+    var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
     options.UseSqlServer(connectionString);
 });
+
 
 builder.Services.AddScoped<TokenService>();
 

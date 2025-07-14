@@ -23,10 +23,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(User user)
+    public async Task<IActionResult> Register([FromBody] User user)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             return BadRequest("Email already exists");
+
+        if (!IsStrongPassword(user.PasswordHash))
+            return BadRequest("Password must be at least 8 characters, include uppercase, lowercase, number, and symbol.");
 
         user.PasswordHash = HashPassword(user.PasswordHash);
         await _context.Users.AddAsync(user);
@@ -35,6 +41,15 @@ public class AuthController : ControllerBase
         return Ok("User registered");
     }
 
+    private bool IsStrongPassword(string password)
+    {
+        return password.Length >= 8 &&
+               password.Any(char.IsUpper) &&
+               password.Any(char.IsLower) &&
+               password.Any(char.IsDigit) &&
+               password.Any(ch => "!@#$%^&*()_+[]{}|;':\",.<>?/\\`~".Contains(ch));
+    }
+    
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
