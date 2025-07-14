@@ -4,6 +4,7 @@ namespace SmartFeedbackAPI.Models;
 public class Feedback
 {
     public int Id { get; set; }
+
     [Required]
     public string Heading { get; set; } = string.Empty;
 
@@ -15,9 +16,11 @@ public class Feedback
 
     [Required]
     public string Message { get; set; } = string.Empty;
+
+    public string? ImageUrl { get; set; }  // ✅ NEW
+
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
-    // Foreign key
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 }

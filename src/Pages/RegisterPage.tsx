@@ -95,7 +95,7 @@ const RegisterPage: React.FC = () => {
             placeholder="Enter your full name"
           />
 
-          <label htmlFor="gender">Gender</label>
+          <label htmlFor="">Gender</label>
           <select name="gender" value={formVal.gender} onChange={handleChange}>
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
@@ -103,7 +103,7 @@ const RegisterPage: React.FC = () => {
             <option value="Other">Other</option>
           </select>
 
-          <label htmlFor="email">Email</label>
+          <label htmlFor="">Email</label>
           <input
             type="email"
             name="email"
@@ -112,7 +112,7 @@ const RegisterPage: React.FC = () => {
             placeholder="Enter email"
           />
 
-          <label htmlFor="password">Password</label>
+          <label htmlFor="">Password</label>
           <input
             type="password"
             name="password"
@@ -121,7 +121,7 @@ const RegisterPage: React.FC = () => {
             placeholder="Enter password"
           />
 
-          <label htmlFor="confirmPassword">Confirm Password</label>
+          <label htmlFor="">Confirm Password</label>
           <input
             type="password"
             name="confirmPassword"

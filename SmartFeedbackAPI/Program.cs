@@ -6,9 +6,9 @@ using SmartFeedbackAPI.Data;
 using SmartFeedbackAPI.Services;     
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<BlobStorageService>();
 
 builder.Services.AddOpenApi();
 
@@ -18,9 +18,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-
 builder.Services.AddScoped<TokenService>();
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -37,7 +35,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -51,7 +48,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -61,7 +57,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-
 
 var app = builder.Build();
 
@@ -75,7 +70,6 @@ app.Use(async (context, next) =>
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 if (app.Environment.IsDevelopment())
 {

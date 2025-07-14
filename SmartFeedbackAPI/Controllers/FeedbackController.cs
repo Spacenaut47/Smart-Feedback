@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartFeedbackAPI.Data;
 using SmartFeedbackAPI.DTOs;
 using SmartFeedbackAPI.Models;
+using SmartFeedbackAPI.Services;
 using System.Security.Claims;
 
 namespace SmartFeedbackAPI.Controllers
@@ -70,6 +71,16 @@ namespace SmartFeedbackAPI.Controllers
                 .ToListAsync();
 
             return Ok(feedbacks);
+        }
+
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile image, [FromServices] BlobStorageService blobService)
+        {
+            if (image == null || image.Length == 0)
+                return BadRequest("No image provided.");
+
+            var imageUrl = await blobService.UploadImageAsync(image);
+            return Ok(new { imageUrl });
         }
 
         // Utility method to extract User ID from JWT
