@@ -39,7 +39,8 @@ namespace SmartFeedbackAPI.Controllers
                 Subcategory = dto.Subcategory,
                 Message = dto.Message,
                 SubmittedAt = DateTime.UtcNow,
-                UserId = userId.Value
+                UserId = userId.Value,
+                ImageUrl = dto.ImageUrl 
             };
 
             _context.Feedbacks.Add(feedback);
@@ -66,7 +67,8 @@ namespace SmartFeedbackAPI.Controllers
                     f.Category,
                     f.Subcategory,
                     f.Message,
-                    f.SubmittedAt
+                    f.SubmittedAt,
+                    f.ImageUrl
                 })
                 .ToListAsync();
 

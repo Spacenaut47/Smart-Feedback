@@ -1,30 +1,35 @@
 using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 
-namespace SmartFeedbackAPI.Services
+public class BlobStorageService
 {
-    public class BlobStorageService
+    private readonly BlobServiceClient _blobServiceClient;
+    private readonly string _containerName;
+
+    public BlobStorageService(IConfiguration configuration)
     {
-        private readonly string _connectionString;
-        private readonly string _containerName = "feedback-images";
+        var connectionString = configuration.GetSection("AzureBlobStorage:ConnectionString").Value;
+        _containerName = configuration.GetSection("AzureBlobStorage:ContainerName").Value;
 
-        public BlobStorageService(IConfiguration config)
+        if (string.IsNullOrEmpty(connectionString))
+            throw new ArgumentNullException(nameof(connectionString), "Azure Blob connection string is missing.");
+
+        if (string.IsNullOrEmpty(_containerName))
+            throw new ArgumentNullException(nameof(_containerName), "Azure Blob container name is missing.");
+
+        _blobServiceClient = new BlobServiceClient(connectionString);
+    }
+
+    public async Task<string> UploadImageAsync(IFormFile file)
+    {
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        await containerClient.CreateIfNotExistsAsync();
+        var blobClient = containerClient.GetBlobClient(Guid.NewGuid() + Path.GetExtension(file.FileName));
+        using (var stream = file.OpenReadStream())
         {
-            _connectionString = config.GetConnectionString("BlobStorage")!;
+            await blobClient.UploadAsync(stream, true);
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file)
-        {
-            var blobServiceClient = new BlobServiceClient(_connectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
-            await containerClient.CreateIfNotExistsAsync();
-
-            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var blobClient = containerClient.GetBlobClient(fileName);
-
-            using var stream = file.OpenReadStream();
-            await blobClient.UploadAsync(stream, overwrite: true);
-
-            return blobClient.Uri.ToString(); // This is the image URL
-        }
+        return blobClient.Uri.ToString();
     }
 }
