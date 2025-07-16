@@ -39,7 +39,7 @@ namespace SmartFeedbackAPI.Controllers
                 Message = dto.Message,
                 SubmittedAt = DateTime.UtcNow,
                 UserId = userId.Value,
-                ImageUrl = dto.ImageUrl 
+                ImageUrl = dto.ImageUrl
             };
 
             _context.Feedbacks.Add(feedback);

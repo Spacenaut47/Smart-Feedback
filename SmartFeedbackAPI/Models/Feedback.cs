@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartFeedbackAPI.Models;
+
 public class Feedback
 {
     public int Id { get; set; }
@@ -17,7 +18,7 @@ public class Feedback
     [Required]
     public string Message { get; set; } = string.Empty;
 
-    public string? ImageUrl { get; set; } 
+    public string? ImageUrl { get; set; }
 
     public string Status { get; set; } = "Pending";
 

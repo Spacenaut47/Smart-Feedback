@@ -60,9 +60,9 @@ button {
 }
 
 .success {
-color: green;
-margin-top: 5px;
-text-align: center;
+  color: green;
+  margin-top: 5px;
+  text-align: center;
 }
 
 .redirect-text {

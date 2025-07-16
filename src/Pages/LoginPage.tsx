@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API from '../api/api';
-import './Auth.css';
+import API from "../api/api";
+import "./Auth.css";
 
 interface LoginData {
   email: string;
   password: string;
-};
+}
 
 const LoginPage: React.FC = () => {
-
   const [formVal, setFormVal] = useState<LoginData>({
     email: "",
-    password: ""
+    password: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +30,7 @@ const LoginPage: React.FC = () => {
     const { email, password } = formVal;
 
     try {
-      const res = await API.post('/auth/login', {
+      const res = await API.post("/auth/login", {
         email,
         password,
       });
@@ -53,8 +52,7 @@ const LoginPage: React.FC = () => {
           }
         }, 1000);
       }
-    }
-     catch (err: any) {
+    } catch (err: any) {
       console.error("Login error:", err);
       setError(err?.response?.data || "Invalid credentials.");
       setSuccess(false);
@@ -64,7 +62,6 @@ const LoginPage: React.FC = () => {
   return (
     <>
       <div className="parentContainer">
-
         <form onSubmit={handleSubmit}>
           <h3>Login</h3>
           <label htmlFor="">Email</label>
@@ -73,7 +70,8 @@ const LoginPage: React.FC = () => {
             name="email"
             value={formVal.email}
             onChange={handleChange}
-            placeholder="Enter email" />
+            placeholder="Enter email"
+          />
 
           <br />
 
@@ -83,7 +81,8 @@ const LoginPage: React.FC = () => {
             name="password"
             value={formVal.password}
             onChange={handleChange}
-            placeholder="Enter password" />
+            placeholder="Enter password"
+          />
 
           <br />
           <button type="submit">Login</button>
@@ -93,10 +92,9 @@ const LoginPage: React.FC = () => {
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
         </form>
-
       </div>
     </>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

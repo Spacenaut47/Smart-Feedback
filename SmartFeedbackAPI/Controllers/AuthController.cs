@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
                password.Any(char.IsDigit) &&
                password.Any(ch => "!@#$%^&*()_+[]{}|;':\",.<>?/\\`~".Contains(ch));
     }
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {

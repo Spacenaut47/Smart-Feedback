@@ -1,10 +1,10 @@
-import {FaChartLine, FaFileAlt } from 'react-icons/fa';
+import { FaChartLine, FaFileAlt } from "react-icons/fa";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import './LandingPage.css';
-import HeadingImg from './Images/HeadingImg.png';
-import works1 from './Images/works1.png';
-import works2 from './Images/works2.png';
+import "./LandingPage.css";
+import HeadingImg from "./Images/HeadingImg.png";
+import works1 from "./Images/works1.png";
+import works2 from "./Images/works2.png";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +14,9 @@ const LandingPage: React.FC = () => {
       <div className="headingContainer">
         <div className="headingText">
           <h1>Smart Feedback Portal</h1>
-          <button className="btn primary" onClick={() => navigate("/register")}>Get Started</button>
+          <button className="btn primary" onClick={() => navigate("/register")}>
+            Get Started
+          </button>
         </div>
         <div className="headingImg">
           <img src={HeadingImg} alt="Smart Feedback Portal" />
@@ -26,7 +28,10 @@ const LandingPage: React.FC = () => {
         <h2>How It Works</h2>
         <div className="worksContent">
           <div className="worksText">
-            <p>Your streamlined feedback collection and analysis, automated by smart tools.</p>
+            <p>
+              Your streamlined feedback collection and analysis, automated by
+              smart tools.
+            </p>
           </div>
           <div className="worksIconGroup">
             <div className="iconBlock">

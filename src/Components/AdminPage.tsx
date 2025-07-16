@@ -45,9 +45,7 @@ const AdminPage: React.FC = () => {
     try {
       await API.patch(`/admin/feedback-status/${id}`, { status: newStatus });
       setFeedbacks((prev) =>
-        prev.map((fb) =>
-          fb.id === id ? { ...fb, status: newStatus } : fb
-        )
+        prev.map((fb) => (fb.id === id ? { ...fb, status: newStatus } : fb))
       );
     } catch (err) {
       console.error("Status update failed:", err);

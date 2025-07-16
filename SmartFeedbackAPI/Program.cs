@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using SmartFeedbackAPI.Data;          
-using SmartFeedbackAPI.Services;     
+using SmartFeedbackAPI.Data;
+using SmartFeedbackAPI.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
