@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartFeedbackAPI.Data;
-using SmartFeedbackAPI.DTOs;
+using SmartFeedbackAPI.DTOs;    
 
 namespace SmartFeedbackAPI.Controllers;
 
@@ -47,7 +47,7 @@ public class AdminController : ControllerBase
     }
 
     // PUT: api/admin/update-status/{feedbackId}
-    [HttpPut("update-status/{feedbackId}")]
+    [HttpPut("update-feedback-status/{feedbackId}")]
     public async Task<IActionResult> UpdateFeedbackStatus(int feedbackId, [FromBody] UpdateStatusDto dto)
     {
         var feedback = await _context.Feedbacks.FindAsync(feedbackId);
@@ -73,6 +73,5 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = "Feedback deleted successfully" });
     }
-
 
 }
