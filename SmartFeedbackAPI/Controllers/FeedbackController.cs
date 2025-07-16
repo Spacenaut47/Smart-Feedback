@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using SmartFeedbackAPI.Data;
 using SmartFeedbackAPI.DTOs;
 using SmartFeedbackAPI.Models;
-using SmartFeedbackAPI.Services;
 using System.Security.Claims;
 
 namespace SmartFeedbackAPI.Controllers

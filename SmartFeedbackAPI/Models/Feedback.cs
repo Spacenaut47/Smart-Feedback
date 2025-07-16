@@ -17,7 +17,9 @@ public class Feedback
     [Required]
     public string Message { get; set; } = string.Empty;
 
-    public string? ImageUrl { get; set; }  // ✅ NEW
+    public string? ImageUrl { get; set; } 
+
+    public string Status { get; set; } = "Pending";
 
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 

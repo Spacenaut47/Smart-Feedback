@@ -45,6 +45,10 @@ namespace SmartFeedbackAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Subcategory")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
