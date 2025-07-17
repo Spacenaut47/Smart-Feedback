@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartFeedbackAPI.Data;
-using SmartFeedbackAPI.DTOs;    
+using SmartFeedbackAPI.DTOs;
 
 namespace SmartFeedbackAPI.Controllers;
 
@@ -23,8 +23,7 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetAllFeedbacks()
     {
         var feedbacks = await _context.Feedbacks
-            .Include(f => f.User)
-            .OrderByDescending(f => f.SubmittedAt)
+            .Include(f => f.User) // this works only if Feedback.User exists
             .Select(f => new
             {
                 f.Id,
@@ -32,19 +31,18 @@ public class AdminController : ControllerBase
                 f.Category,
                 f.Subcategory,
                 f.Message,
-                f.ImageUrl,
                 f.SubmittedAt,
-                User = new
-                {
-                    f.User.Id,
-                    f.User.FullName,
-                    f.User.Email
-                }
+                f.Status,
+                f.ImageUrl,
+                FullName = f.User.FullName,
+                Email = f.User.Email
             })
+            .OrderByDescending(f => f.SubmittedAt)
             .ToListAsync();
 
         return Ok(feedbacks);
     }
+
 
     // PUT: api/admin/update-status/{feedbackId}
     [HttpPut("update-feedback-status/{feedbackId}")]
@@ -72,6 +70,33 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Feedback deleted successfully" });
+    }
+
+    [HttpGet("users-with-feedbacks")]
+    public async Task<IActionResult> GetUsersWithFeedbacks()
+    {
+        var usersWithFeedbacks = await _context.Users
+            .Select(u => new
+            {
+                u.Id,
+                u.FullName,
+                u.Email,
+                Feedbacks = _context.Feedbacks
+                    .Where(f => f.UserId == u.Id)
+                    .OrderByDescending(f => f.SubmittedAt)
+                    .Select(f => new
+                    {
+                        f.Id,
+                        f.Heading,
+                        f.Category,
+                        f.Subcategory,
+                        f.Message,
+                        f.SubmittedAt
+                    }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(usersWithFeedbacks);
     }
 
 }

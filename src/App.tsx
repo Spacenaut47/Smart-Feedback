@@ -3,7 +3,6 @@ import LandingPage from "./Components/LandingPage";
 import UserPage from "./Components/UserPage";
 import LoginPage from "./Pages/LoginPage";
 import RegisterPage from "./Pages/RegisterPage";
-import AdminPage from "./Components/AdminPage";
 import AdminDashboard from "./Pages/AdminDashboard";
 import UserManagement from "./Pages/UserManagement";
 
