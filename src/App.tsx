@@ -5,6 +5,7 @@ import LoginPage from "./Pages/LoginPage";
 import RegisterPage from "./Pages/RegisterPage";
 import AdminDashboard from "./Pages/AdminDashboard";
 import UserManagement from "./Pages/UserManagement";
+import AdminAnalytics from "./Pages/AdminAnalytics"; 
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/user" element={<UserPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />
+        <Route path="/admin-analytics" element={<AdminAnalytics />} />
       </Routes>
     </BrowserRouter>
   );

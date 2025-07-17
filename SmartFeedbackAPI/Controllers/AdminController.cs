@@ -99,4 +99,18 @@ public class AdminController : ControllerBase
         return Ok(usersWithFeedbacks);
     }
 
+    [HttpPost("update-role/{userId}")]
+    public async Task<IActionResult> UpdateUserRole(int userId, [FromQuery] bool makeAdmin)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+            return NotFound("User not found");
+
+        user.IsAdmin = makeAdmin;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { user.Id, user.FullName, user.IsAdmin });
+    }
+
+
 }

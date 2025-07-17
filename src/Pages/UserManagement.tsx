@@ -17,6 +17,7 @@ interface User {
   id: number;
   fullName: string;
   email: string;
+  isAdmin: boolean;
   feedbacks: Feedback[];
 }
 
@@ -104,6 +105,19 @@ Message: ${fb.message}
     localStorage.removeItem("token");
     localStorage.removeItem("isAdmin");
     navigate("/login");
+  };
+
+  const handleRoleUpdate = async (userId: number, makeAdmin: boolean) => {
+    try {
+      await API.post(`/admin/update-role/${userId}?makeAdmin=${makeAdmin}`);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.id === userId ? { ...u, isAdmin: makeAdmin } : u
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update user role:", error);
+    }
   };
 
   return (
@@ -293,6 +307,16 @@ Message: ${fb.message}
                       No feedbacks submitted by this user.
                     </div>
                   )}
+                  <button
+                    onClick={() => handleRoleUpdate(user.id, !user.isAdmin)}
+                    className={`px-4 py-2 text-sm rounded-xl font-semibold mt-4 transition-all duration-300 ${
+                      user.isAdmin
+                        ? "bg-red-100 text-red-600 hover:bg-red-200"
+                        : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    }`}
+                  >
+                    {user.isAdmin ? "Demote from Admin" : "Promote to Admin"}
+                  </button>
                 </div>
               )}
             </div>
