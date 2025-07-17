@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./UserPage.css";
 import Profile from "./Images/dummy.png";
 import API from "../api/api";
 
@@ -24,11 +23,7 @@ interface SubmittedFeedback {
 const categories = ["Department", "Services", "Events", "Others"] as const;
 const subcategoriesMap: Record<string, string[]> = {
   Department: ["Development", "Administration", "HR"],
-  Services: [
-    "IT Support Services",
-    "Workplace Tools & Software",
-    "Transportation",
-  ],
+  Services: ["IT Support Services", "Workplace Tools & Software", "Transportation"],
   Events: ["Hackathons", "Tech Talks", "Employee Recognition Events"],
   Others: ["Other"],
 };
@@ -41,40 +36,24 @@ const UserPage: React.FC = () => {
     feedback: "",
     image: null,
   });
-
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [feedbackSuccess, setFeedbackSuccess] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("Submitted");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
-  const [openCategoryDropdown, setOpenCategoryDropdown] = useState<
-    string | null
-  >(null);
-  const [showProfileDropdown, setShowProfileDropdown] =
-    useState<boolean>(false);
+  const [openCategoryDropdown, setOpenCategoryDropdown] = useState<string | null>(null);
+  const [showProfileDropdown, setShowProfileDropdown] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>("");
-  const [submittedFeedbacks, setSubmittedFeedbacks] = useState<
-    SubmittedFeedback[]
-  >([]);
+  const [submittedFeedbacks, setSubmittedFeedbacks] = useState<SubmittedFeedback[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/", { replace: true });
-  };
-
   useEffect(() => {
     const name = localStorage.getItem("userName");
     const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
+    if (!token) navigate("/login", { replace: true });
     if (name) setUserName(name);
 
     const fetchFeedbacks = async () => {
@@ -89,35 +68,27 @@ const UserPage: React.FC = () => {
     };
 
     fetchFeedbacks();
-
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-
       if (profileRef.current && !profileRef.current.contains(target)) {
         setShowProfileDropdown(false);
       }
-
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setOpenCategoryDropdown(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [navigate]);
 
   const handleFeedbackChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFeedbackForm((prev) => ({ ...prev, [name]: value }));
-
     if (name === "category") {
       setFeedbackForm((prev) => ({ ...prev, subcategory: "" }));
     }
-
     setFeedbackError(null);
     setFeedbackSuccess(false);
   };
@@ -125,7 +96,6 @@ const UserPage: React.FC = () => {
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { heading, category, subcategory, feedback, image } = feedbackForm;
-
     if (!heading || !category || !subcategory || !feedback) {
       setFeedbackError("Please fill in all fields.");
       return;
@@ -134,23 +104,18 @@ const UserPage: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       let imageUrl = "";
-
-      // If image is selected, upload to blob
       if (image) {
         const formData = new FormData();
         formData.append("image", image);
-
         const uploadRes = await API.post("/feedback/upload-image", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         });
-
         imageUrl = uploadRes.data.imageUrl;
       }
 
-      // Now submit feedback with imageUrl
       const res = await API.post(
         "/feedback/submit",
         {
@@ -165,16 +130,8 @@ const UserPage: React.FC = () => {
 
       if (res.status === 200 || res.status === 201) {
         setFeedbackSuccess(true);
-        setFeedbackForm({
-          heading: "",
-          category: "",
-          subcategory: "",
-          feedback: "",
-          image: null,
-        });
-
+        setFeedbackForm({ heading: "", category: "", subcategory: "", feedback: "", image: null });
         setTimeout(() => setFeedbackSuccess(false), 5000);
-
         const updated = await API.get("/feedback/my-feedbacks", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -191,9 +148,7 @@ const UserPage: React.FC = () => {
       ? submittedFeedbacks
       : selectedSubcategory !== ""
       ? submittedFeedbacks.filter(
-          (fb) =>
-            fb.category === selectedCategory &&
-            fb.subcategory === selectedSubcategory
+          (fb) => fb.category === selectedCategory && fb.subcategory === selectedSubcategory
         )
       : [];
 
@@ -201,35 +156,44 @@ const UserPage: React.FC = () => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("isAdmin");
+  navigate("/login");
+};
+
+
   return (
-    <div className="user-page">
+    <div className="min-h-screen bg-gradient-to-r from-slate-900 to-slate-700 text-white">
       {/* Navbar */}
-      <nav className="navbar">
-        <div></div>
-        <div className="profile-dropdown" ref={profileRef}>
+      <div className="flex justify-end p-4">
+        <div className="relative" ref={profileRef}>
           <img
             src={Profile}
-            alt="User"
-            className="user-img"
+            alt="Profile"
+            className="w-10 h-10 rounded-full cursor-pointer border-2 border-white"
             onClick={() => setShowProfileDropdown(!showProfileDropdown)}
           />
           {showProfileDropdown && (
-            <div className="dropdown-options profile-options">
-              <div className="logout-option" onClick={handleLogout}>
+            <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-md shadow-lg z-50">
+              <div className="px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={handleLogout}>
                 Logout
               </div>
             </div>
           )}
         </div>
-      </nav>
+      </div>
 
-      {/* Welcome */}
-      <div className="welcome-text">Welcome {userName}</div>
+      <h2 className="text-2xl font-bold text-center mb-4">Welcome {userName}</h2>
 
-      {/* Tabs */}
-      <div className="tab-row" ref={dropdownRef}>
-        <div
-          className={`tab ${selectedCategory === "Submitted" ? "active" : ""}`}
+      {/* Category Tabs */}
+      <div ref={dropdownRef} className="flex flex-wrap justify-center gap-2 px-4 mb-6">
+        <button
+          className={`px-4 py-2 rounded-full font-medium transition duration-300 ${
+            selectedCategory === "Submitted"
+              ? "bg-white text-black"
+              : "bg-slate-600 hover:bg-slate-500"
+          }`}
           onClick={() => {
             setSelectedCategory("Submitted");
             setSelectedSubcategory("");
@@ -237,30 +201,28 @@ const UserPage: React.FC = () => {
           }}
         >
           Submitted Feedback
-        </div>
+        </button>
         {categories.map((cat) => (
-          <div key={cat} className="custom-dropdown">
-            <div
-              className={`dropdown-button ${
-                selectedCategory === cat ? "active" : ""
+          <div key={cat} className="relative">
+            <button
+              className={`px-4 py-2 rounded-full font-medium transition duration-300 ${
+                selectedCategory === cat ? "bg-white text-black" : "bg-slate-600 hover:bg-slate-500"
               }`}
               onClick={() => {
                 setSelectedCategory(cat);
                 setSelectedSubcategory("");
-                setOpenCategoryDropdown(
-                  openCategoryDropdown === cat ? null : cat
-                );
+                setOpenCategoryDropdown(openCategoryDropdown === cat ? null : cat);
               }}
             >
               {cat}
-            </div>
+            </button>
             {openCategoryDropdown === cat && (
-              <div className="dropdown-options">
+              <div className="absolute top-full left-0 bg-white text-black rounded shadow-md mt-1 z-20">
                 {subcategoriesMap[cat].map((sub) => (
                   <div
                     key={sub}
-                    className={`dropdown-option ${
-                      selectedSubcategory === sub ? "selected" : ""
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-200 ${
+                      selectedSubcategory === sub ? "bg-gray-100 font-semibold" : ""
                     }`}
                     onClick={() => {
                       setSelectedSubcategory(sub);
@@ -276,11 +238,10 @@ const UserPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Content */}
-      <div className="content">
-        {/* Feedback Section */}
-        <div className="feedback-section scrollable-column">
-          <h3 className="sticky-heading">
+      <div className="grid md:grid-cols-2 gap-6 px-4 pb-10">
+        {/* Feedback Display */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">
             {selectedCategory === "Submitted"
               ? "Submitted Feedback"
               : selectedSubcategory
@@ -288,79 +249,60 @@ const UserPage: React.FC = () => {
               : `Select a subcategory`}
           </h3>
 
-          <div className="feedback-list">
+          <div className="space-y-4">
             {filteredFeedbacks.length > 0 ? (
               filteredFeedbacks.map((fb, index) => (
                 <div
-                  className={`feedback-card ${
-                    expandedIndex === index ? "expanded" : ""
-                  }`}
                   key={index}
+                  className={`rounded-lg p-4 bg-white bg-opacity-10 hover:bg-opacity-20 transition cursor-pointer ${
+                    expandedIndex === index ? "ring-2 ring-white" : ""
+                  }`}
                   onClick={() => toggleExpand(index)}
                 >
-                  <div className="status-dot" />
-                  <div className="feedback-content">
-                    <div className="feedback-title">{fb.heading}</div>
-                    <div className="feedback-meta-row">
-                      <span className="feedback-meta">
-                        {fb.category} / {fb.subcategory}
-                      </span>
-                      <span className="feedback-time">
-                        {new Date(fb.submittedAt).toLocaleString()}
-                      </span>
-                    </div>
-                    {expandedIndex === index && (
-                      <div className="feedback-message">
-                        {fb.message}
-                        {fb.imageUrl && (
-                          <div>
-                            <img
-                              src={fb.imageUrl}
-                              alt="Feedback"
-                              className="feedback-image"
-                              style={{
-                                maxWidth: "100%",
-                                marginTop: "10px",
-                                borderRadius: "8px",
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )}
+                  <div className="text-lg font-semibold">{fb.heading}</div>
+                  <div className="text-sm text-gray-300 flex justify-between">
+                    <span>
+                      {fb.category} / {fb.subcategory}
+                    </span>
+                    <span>{new Date(fb.submittedAt).toLocaleString()}</span>
                   </div>
+                  {expandedIndex === index && (
+                    <div className="mt-2 text-sm text-gray-200">
+                      {fb.message}
+                      {fb.imageUrl && (
+                        <img
+                          src={fb.imageUrl}
+                          alt="Feedback"
+                          className="mt-2 rounded-md max-h-60 object-contain border"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
-              <div className="no-data">
-                {selectedCategory === "Submitted"
-                  ? "No feedback found..."
-                  : selectedSubcategory
-                  ? "No feedback for this category."
-                  : ""}
-              </div>
+              <p className="text-gray-400">No feedback found.</p>
             )}
           </div>
         </div>
 
         {/* Feedback Form */}
-        <div className="event-section scrollable-column">
-          <h3 className="sticky-heading">Write Your Feedback</h3>
-          <form onSubmit={handleFeedbackSubmit}>
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Write Your Feedback</h3>
+          <form onSubmit={handleFeedbackSubmit} className="space-y-4">
             <input
               type="text"
               name="heading"
               value={feedbackForm.heading}
               onChange={handleFeedbackChange}
-              placeholder="Enter heading / name for your feedback"
-              className="feedback-input"
+              placeholder="Feedback heading"
+              className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
             />
-
             <select
               name="category"
               value={feedbackForm.category}
               onChange={handleFeedbackChange}
-              className="feedback-input"
+              className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
             >
               <option value="">Select Category</option>
               {categories.map((cat) => (
@@ -369,12 +311,11 @@ const UserPage: React.FC = () => {
                 </option>
               ))}
             </select>
-
             <select
               name="subcategory"
               value={feedbackForm.subcategory}
               onChange={handleFeedbackChange}
-              className="feedback-input"
+              className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
               disabled={!feedbackForm.category}
             >
               <option value="">Select Subcategory</option>
@@ -385,16 +326,15 @@ const UserPage: React.FC = () => {
                   </option>
                 ))}
             </select>
-
             <textarea
               name="feedback"
               value={feedbackForm.feedback}
               onChange={handleFeedbackChange}
               placeholder="Write your feedback here..."
-              className="feedback-textarea"
-              rows={5}
+              className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
+              rows={4}
             ></textarea>
-            <label htmlFor="image">Upload Image (optional)</label>
+            <div className="text-sm">Upload Image (optional)</div>
             <input
               type="file"
               accept="image/*"
@@ -404,16 +344,16 @@ const UserPage: React.FC = () => {
                   image: e.target.files ? e.target.files[0] : null,
                 }))
               }
+              className="w-full text-white"
             />
-
-            <button type="submit" className="submit-feedback-btn">
+            <button
+              type="submit"
+              className="w-full py-2 rounded bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition"
+            >
               Submit Feedback
             </button>
-
-            {feedbackError && <p className="error">{feedbackError}</p>}
-            {feedbackSuccess && (
-              <p className="success">Feedback submitted successfully!</p>
-            )}
+            {feedbackError && <p className="text-red-400">{feedbackError}</p>}
+            {feedbackSuccess && <p className="text-green-400">Feedback submitted successfully!</p>}
           </form>
         </div>
       </div>
