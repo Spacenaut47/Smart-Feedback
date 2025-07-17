@@ -1,69 +1,51 @@
-# React + TypeScript + Vite
+# SmartFeedback Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SmartFeedback is a full-stack feedback management system that allows users to submit categorized feedback with optional images, while administrators can manage, filter, and respond to the feedback through an admin dashboard. Built with **.NET 9 Web API**, **React + Tailwind CSS**, and deployed using **Render** and **Netlify**.
 
-Currently, two official plugins are available:
+## 🌐 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend (User + Admin Portal):** [Netlify Deployment](https://your-frontend.netlify.app)
+- **Backend API:** [Render Deployment](https://smartfeedback-render-api.onrender.com)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🧩 Tech Stack
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Layer       | Technology                        |
+|-------------|------------------------------------|
+| Frontend    | React + Vite + TypeScript (or JS) |
+| Styling     | Tailwind CSS                      |
+| Backend     | ASP.NET Core 9 Web API            |
+| Database    | Azure SQL                         |
+| Storage     | Azure Blob Storage (for images)   |
+| Auth        | JWT Authentication                |
+| Deployment  | Render (API), Netlify (Frontend)  |
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## ✨ Features
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 👤 Users
+- Register & login securely using JWT
+- Submit feedback with:
+  - Heading
+  - Category & Subcategory (predefined)
+  - Message
+  - Optional image upload
+- View previously submitted feedbacks with:
+  - Status (Pending / Resolved / In Progress)
+  - Submitted date
+  - Attached image preview
+- Logout functionality
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🛡️ Admins
+- Access Admin Dashboard after login
+- View all feedbacks from users
+- Update feedback status
+- Filter by category/subcategory/status
+- View user details and submitted feedbacks
+- Promote/demote user roles
+- Analytics dashboard (chart-based)
+- Future scope: audit logs, activity tracking
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
