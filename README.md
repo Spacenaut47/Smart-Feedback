@@ -49,6 +49,3 @@ SmartFeedback is a full-stack feedback management system that allows users to su
 - Future scope: audit logs, activity tracking
 
 ---
-
-## 📁 Project Structure
-
