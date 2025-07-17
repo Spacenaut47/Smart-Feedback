@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5200",
-            "https://smartfeedback-backend.onrender.com/"
+            "https://smart-feedback-backend-aqgu.onrender.com"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
