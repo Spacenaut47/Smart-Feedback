@@ -4,7 +4,7 @@ SmartFeedback is a full-stack feedback management system that allows users to su
 
 ## 🌐 Live Demo
 
-- **Frontend (User + Admin Portal):** [Netlify Deployment](https://your-frontend.netlify.app)
+- **Frontend (User + Admin Portal):** [Netlify Deployment](https://smart-feedback-frontend2.netlify.app/)
 - **Backend API:** [Render Deployment](https://smart-feedback-backend-aqgu.onrender.com)
 
 ---
