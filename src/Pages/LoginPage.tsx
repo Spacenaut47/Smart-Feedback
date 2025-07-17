@@ -2,11 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api/api";
 
-interface LoginData {
-  email: string;
-  password: string;
-}
-
 const LoginPage: React.FC = () => {
   const [formVal, setFormVal] = useState({
     email: "",
