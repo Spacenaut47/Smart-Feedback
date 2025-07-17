@@ -116,11 +116,11 @@ const AdminDashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Resolved":
-        return "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-200 shadow-emerald-100";
+        return "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-200";
       case "In Progress":
-        return "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-200 shadow-amber-100";
+        return "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-200";
       default:
-        return "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200 shadow-blue-100";
+        return "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200";
     }
   };
 
@@ -137,141 +137,220 @@ const AdminDashboard = () => {
       <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
 
-      <div className="relative z-10 py-12 px-4">
+      <div className="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-            <div className="text-center md:text-left">
-              <h2 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-800 bg-clip-text text-transparent mb-2">
-                Admin Dashboard
-              </h2>
+          <div className="mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="text-center lg:text-left">
+                <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-800 bg-clip-text text-transparent mb-2">
+                  Admin Dashboard
+                </h1>
+                <p className="text-slate-600 text-lg">
+                  Manage and track all feedback submissions
+                </p>
+              </div>
               
-              <p className="text-slate-600 text-lg">
-                Manage and track all feedback submissions
-              </p>
-            </div>
-            <button
-              onClick={() => navigate("/admin/users")}
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-              <span className="relative flex items-center gap-2">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end">
+                <button
+                  onClick={() => navigate("/admin/users")}
+                  className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                  />
-                </svg>
-                Manage Users
-              </span>
-            </button>
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative flex items-center justify-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                      />
+                    </svg>
+                    <span className="whitespace-nowrap">Manage Users</span>
+                  </span>
+                </button>
+                
+                <button
+                  onClick={() => navigate("/admin-analytics")}
+                  className="group relative px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative flex items-center justify-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
+                    </svg>
+                    <span className="whitespace-nowrap">View Analytics</span>
+                  </span>
+                </button>
+                
+                <button
+                  onClick={handleLogout}
+                  className="group relative px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative flex items-center justify-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    <span className="whitespace-nowrap">Logout</span>
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-            <div className="group">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Category
-              </label>
-              <select
-                className="w-full p-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setSubcategory("");
-                }}
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="group">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Subcategory
-              </label>
-              <select
-                className="w-full p-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 disabled:opacity-50"
-                value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
-                disabled={!category}
-              >
-                <option value="">All Subcategories</option>
-                {category &&
-                  subcategoriesMap[category]?.map((sub) => (
-                    <option key={sub}>{sub}</option>
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Filter Feedbacks</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">
+                  Category
+                </label>
+                <select
+                  className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setSubcategory("");
+                  }}
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
                   ))}
-              </select>
-            </div>
+                </select>
+              </div>
 
-            <div className="group">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Status
-              </label>
-              <select
-                className="w-full p-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="">All Statuses</option>
-                {statuses.map((stat) => (
-                  <option key={stat}>{stat}</option>
-                ))}
-              </select>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">
+                  Subcategory
+                </label>
+                <select
+                  className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  value={subcategory}
+                  onChange={(e) => setSubcategory(e.target.value)}
+                  disabled={!category}
+                >
+                  <option value="">All Subcategories</option>
+                  {category &&
+                    subcategoriesMap[category]?.map((sub) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">
+                  Status
+                </label>
+                <select
+                  className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  {statuses.map((stat) => (
+                    <option key={stat} value={stat}>{stat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/50">
+              <div className="text-2xl font-bold text-slate-800">{filteredFeedbacks.length}</div>
+              <div className="text-sm text-slate-600">Total Feedbacks</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/50">
+              <div className="text-2xl font-bold text-blue-600">{filteredFeedbacks.filter(f => f.status === 'New').length}</div>
+              <div className="text-sm text-slate-600">New</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/50">
+              <div className="text-2xl font-bold text-amber-600">{filteredFeedbacks.filter(f => f.status === 'In Progress').length}</div>
+              <div className="text-sm text-slate-600">In Progress</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/50">
+              <div className="text-2xl font-bold text-emerald-600">{filteredFeedbacks.filter(f => f.status === 'Resolved').length}</div>
+              <div className="text-sm text-slate-600">Resolved</div>
             </div>
           </div>
 
           {/* Feedback Cards */}
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {paginatedFeedbacks.length > 0 ? (
               paginatedFeedbacks.map((fb) => (
                 <div
                   key={fb.id}
-                  className="group bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl shadow-lg hover:shadow-2xl p-5 flex flex-col relative transform hover:-translate-y-2 transition-all duration-500 hover:border-blue-300 cursor-pointer"
+                  className="group bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl shadow-lg hover:shadow-2xl p-6 flex flex-col relative transform hover:-translate-y-1 transition-all duration-300 hover:border-blue-300 cursor-pointer"
                   onClick={() => toggleCardExpansion(fb.id)}
                 >
                   {/* Status Badge */}
                   <div
-                    className={`absolute top-4 right-4 px-3 py-1 text-xs font-semibold border rounded-full shadow-lg ${getStatusColor(
+                    className={`absolute top-4 right-4 px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(
                       fb.status
                     )}`}
                   >
                     {fb.status}
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-800 mb-2 pr-16 group-hover:text-blue-700 transition-colors duration-300">
-                    {fb.heading}
-                  </h3>
+                  <div className="mb-4 pr-20">
+                    <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-blue-700 transition-colors duration-300">
+                      {fb.heading}
+                    </h3>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <p className="text-sm text-slate-600 font-medium">
-                      <span className="text-slate-800 font-semibold">
-                        {fb.category}
-                      </span>{" "}
-                      / {fb.subcategory}
-                    </p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <p className="text-sm text-slate-600 font-medium">
+                        <span className="text-slate-800 font-semibold">
+                          {fb.category}
+                        </span>{" "}
+                        / {fb.subcategory}
+                      </p>
+                    </div>
                   </div>
 
-                  <p className="text-slate-700 text-sm mb-4 line-clamp-3 leading-relaxed">
-                    {fb.message}
-                  </p>
+                  <div className="flex-1 mb-4">
+                    <p className={`text-slate-700 text-sm leading-relaxed ${
+                      expandedCards.has(fb.id) ? '' : 'line-clamp-3'
+                    }`}>
+                      {fb.message}
+                    </p>
+                  </div>
 
                   {fb.imageUrl && expandedCards.has(fb.id) && (
                     <div className="relative mb-4 overflow-hidden rounded-xl animate-in slide-in-from-top-5 duration-300">
                       <img
                         src={fb.imageUrl}
-                        alt="feedback"
-                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                        alt="Feedback attachment"
+                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                     </div>
@@ -300,36 +379,35 @@ const AdminDashboard = () => {
                     </div>
                   )}
 
-                  <div className="bg-slate-50 rounded-xl p-3 mb-3">
+                  <div className="bg-slate-50 rounded-xl p-4 mb-4">
                     <div className="text-sm text-slate-600 mb-1">
                       <span className="text-slate-500">Submitted by:</span>{" "}
                       <span className="font-semibold text-slate-800">
                         {fb.fullName}
                       </span>
                     </div>
-                    <div className="text-sm text-slate-500">{fb.email}</div>
+                    <div className="text-sm text-slate-500 mb-2">{fb.email}</div>
+                    <div className="text-xs text-slate-400 flex items-center gap-1">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {new Date(fb.submittedAt).toLocaleString()}
+                    </div>
                   </div>
 
-                  <div className="text-xs text-slate-400 mb-4 flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {new Date(fb.submittedAt).toLocaleString()}
-                  </div>
-
-                  <div className="flex justify-between items-center mt-auto gap-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <select
-                      className="text-sm border-2 border-slate-200 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 font-medium"
+                      className="text-sm border-2 border-slate-200 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 font-medium flex-1 sm:flex-none"
                       value={fb.status}
                       onChange={(e) => {
                         e.stopPropagation();
@@ -337,7 +415,7 @@ const AdminDashboard = () => {
                       }}
                     >
                       {statuses.map((stat) => (
-                        <option key={stat}>{stat}</option>
+                        <option key={stat} value={stat}>{stat}</option>
                       ))}
                     </select>
 
@@ -346,7 +424,7 @@ const AdminDashboard = () => {
                         e.stopPropagation();
                         handleDelete(fb.id);
                       }}
-                      className="group/btn text-red-500 hover:text-red-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition-all duration-300 flex items-center gap-1"
+                      className="group/btn text-red-500 hover:text-red-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition-all duration-300 flex items-center justify-center gap-2"
                     >
                       <svg
                         className="w-4 h-4 group-hover/btn:scale-110 transition-transform"
@@ -395,20 +473,36 @@ const AdminDashboard = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-16 gap-2">
+            <div className="flex justify-center items-center mt-12 gap-2">
+              <button
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              
               {Array.from({ length: totalPages }, (_, idx) => (
                 <button
                   key={idx + 1}
-                  className={`px-6 py-3 text-sm rounded-xl border-2 font-semibold transition-all duration-300 ${
+                  className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-300 ${
                     currentPage === idx + 1
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-lg transform scale-105"
-                      : "bg-white/80 backdrop-blur-sm text-blue-600 border-blue-200 hover:border-blue-400 hover:bg-blue-50 hover:scale-105"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                      : "bg-white/80 text-blue-600 hover:bg-blue-50"
                   }`}
                   onClick={() => setCurrentPage(idx + 1)}
                 >
                   {idx + 1}
                 </button>
               ))}
+              
+              <button
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
             </div>
           )}
         </div>
