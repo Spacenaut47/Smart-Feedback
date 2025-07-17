@@ -98,5 +98,38 @@ namespace SmartFeedbackAPI.Controllers
 
             return null;
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("update-status/{feedbackId}")]
+        public async Task<IActionResult> UpdateFeedbackStatus(int feedbackId, [FromBody] string newStatus)
+        {
+            var feedback = await _context.Feedbacks.Include(f => f.User).FirstOrDefaultAsync(f => f.Id == feedbackId);
+            if (feedback == null) return NotFound("Feedback not found.");
+
+            var oldStatus = feedback.Status;
+            feedback.Status = newStatus;
+
+            await _context.SaveChangesAsync();
+
+            // Log the status change
+            var adminId = GetUserId();
+            if (adminId != null)
+            {
+                var log = new AuditLog
+                {
+                    ActionType = "StatusChange",
+                    Description = $"Changed status of feedback ID {feedbackId} from '{oldStatus}' to '{newStatus}' for user {feedback.User?.FullName ?? "Unknown"}",
+                    Timestamp = DateTime.UtcNow,
+                    PerformedByUserId = adminId.Value,
+                    TargetUserId = feedback.UserId
+                };
+
+                _context.AuditLogs.Add(log);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { message = "Feedback status updated successfully." });
+        }
+
     }
 }

@@ -6,6 +6,7 @@ import RegisterPage from "./Pages/RegisterPage";
 import AdminDashboard from "./Pages/AdminDashboard";
 import UserManagement from "./Pages/UserManagement";
 import AdminAnalytics from "./Pages/AdminAnalytics"; 
+import AuditLogs from "./Pages/AuditLogs";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />
         <Route path="/admin-analytics" element={<AdminAnalytics />} />
+        <Route path="/audit-logs" element={<AuditLogs />} />
       </Routes>
     </BrowserRouter>
   );

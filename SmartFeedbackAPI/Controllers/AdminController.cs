@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartFeedbackAPI.Data;
 using SmartFeedbackAPI.DTOs;
+using SmartFeedbackAPI.Models;
+using System.Security.Claims;
 
 namespace SmartFeedbackAPI.Controllers;
 
@@ -103,14 +105,50 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> UpdateUserRole(int userId, [FromQuery] bool makeAdmin)
     {
         var user = await _context.Users.FindAsync(userId);
-        if (user == null)
-            return NotFound("User not found");
+        if (user == null) return NotFound("User not found");
 
         user.IsAdmin = makeAdmin;
         await _context.SaveChangesAsync();
 
-        return Ok(new { user.Id, user.FullName, user.IsAdmin });
+        var adminId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+        // Add Audit Log
+        var log = new AuditLog
+        {
+            ActionType = "RoleChange",
+            Description = $"{user.FullName} was {(makeAdmin ? "promoted to admin" : "demoted to user")}",
+            Timestamp = DateTime.UtcNow,
+            PerformedByUserId = adminId,
+            TargetUserId = user.Id
+        };
+
+        _context.AuditLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Role updated successfully." });
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet("audit-logs")]
+    public async Task<IActionResult> GetAuditLogs()
+    {
+        var logs = await _context.AuditLogs
+            .OrderByDescending(log => log.Timestamp)
+            .Select(log => new
+            {
+                log.Id,
+                AdminId = log.PerformedByUserId,
+                AdminName = _context.Users
+                    .Where(u => u.Id == log.PerformedByUserId)
+                    .Select(u => u.FullName)
+                    .FirstOrDefault(),
+                log.ActionType,
+                log.Description,
+                log.Timestamp
+            })
+            .ToListAsync();
+
+        return Ok(logs);
+    }
 
 }

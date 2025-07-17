@@ -58,6 +58,21 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid credentials");
 
         var token = _tokenService.CreateToken(user);
+
+        if (user.IsAdmin)
+        {
+            var log = new AuditLog
+            {
+                ActionType = "AdminLogin",
+                Description = $"Admin {user.FullName} logged in.",
+                Timestamp = DateTime.UtcNow,
+                PerformedByUserId = user.Id
+            };
+
+            _context.AuditLogs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
         return Ok(new
         {
             token,
@@ -65,6 +80,7 @@ public class AuthController : ControllerBase
             fullName = user.FullName
         });
     }
+
 
     private string HashPassword(string password) =>
         Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(password)));

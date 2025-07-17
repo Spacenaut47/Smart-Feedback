@@ -22,6 +22,44 @@ namespace SmartFeedbackAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SmartFeedbackAPI.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FeedbackId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PerformedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeedbackId");
+
+                    b.HasIndex("PerformedByUserId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("SmartFeedbackAPI.Models.Feedback", b =>
                 {
                     b.Property<int>("Id")
@@ -96,6 +134,29 @@ namespace SmartFeedbackAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SmartFeedbackAPI.Models.AuditLog", b =>
+                {
+                    b.HasOne("SmartFeedbackAPI.Models.Feedback", "Feedback")
+                        .WithMany()
+                        .HasForeignKey("FeedbackId");
+
+                    b.HasOne("SmartFeedbackAPI.Models.User", "PerformedByUser")
+                        .WithMany()
+                        .HasForeignKey("PerformedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartFeedbackAPI.Models.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId");
+
+                    b.Navigation("Feedback");
+
+                    b.Navigation("PerformedByUser");
+
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("SmartFeedbackAPI.Models.Feedback", b =>
