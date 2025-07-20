@@ -3,12 +3,14 @@ trigger:
     include:
       - main
 
-pool:
-  vmImage: 'windows-latest'
+name: SmartFeedback_$(Date:yyyyMMdd)$(Rev:.r)
 
 variables:
-  backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
-  nodeVersion: '18.x'
+- name: backendProject
+  value: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
+- name: nodeVersion
+  value: '18.x'
+
 
 steps:
   # Checkout code
