@@ -52,7 +52,6 @@ stages:
 
           ### 🔨 Install & Build React frontend
           - script: |
-              cd frontend  # Change if your frontend is in a subfolder
               npm install
               npm run build
             displayName: 'Build React Frontend'
