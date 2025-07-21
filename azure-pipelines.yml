@@ -1,0 +1,81 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: Default
+
+variables:
+  backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
+  nodeVersion: '20.x'
+
+steps:
+# ✅ Checkout code
+- checkout: self
+
+# ✅ Install Node.js 20
+- task: NodeTool@0
+  inputs:
+    versionSpec: '$(nodeVersion)'
+  displayName: 'Install Node.js'
+
+# ✅ Install frontend dependencies (assuming frontend is at repo root)
+- script: |
+    echo Installing frontend dependencies...
+    npm install
+  displayName: 'Install Frontend Dependencies'
+
+# ✅ Build frontend using Vite
+- script: |
+    echo Building frontend with Vite...
+    npm run build
+    echo Listing dist contents...
+    dir dist
+  displayName: 'Build Frontend (Vite)'
+
+# ✅ Publish frontend artifact (dist folder)
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'dist'
+    ArtifactName: 'frontend'
+    publishLocation: 'Container'
+  displayName: 'Publish Frontend Artifact'
+
+# ✅ Install .NET SDK
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+  displayName: 'Install .NET 9 SDK'
+
+# ✅ Restore .NET dependencies
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '$(backendProject)'
+  displayName: 'Restore .NET Dependencies'
+
+# ✅ Build .NET backend
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(backendProject)'
+    arguments: '--configuration Release'
+  displayName: 'Build .NET Backend'
+
+# ✅ Publish .NET backend
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    projects: '$(backendProject)'
+    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+  displayName: 'Publish .NET Backend'
+
+# ✅ Publish backend artifact
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'backend'
+    publishLocation: 'Container'
+  displayName: 'Publish Backend Artifact'
