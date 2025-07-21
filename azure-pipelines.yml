@@ -4,7 +4,7 @@ trigger:
       - main
 
 pool:
-  name: Default  # Or 'windows-latest' if using Microsoft-hosted agents
+  name: Default  # Use 'windows-latest' if you're on a Microsoft-hosted agent
 
 variables:
   backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
@@ -22,49 +22,58 @@ stages:
         displayName: 'Build Job'
         steps:
 
-          ### 🔁 Checkout the repo
+          # ✅ Checkout repo
           - checkout: self
 
-          ### ⚙️ Set up .NET SDK
+          # ⚙️ Install .NET SDK
           - task: UseDotNet@2
             inputs:
               packageType: 'sdk'
               version: '9.0.x'
+            displayName: 'Install .NET 9 SDK'
 
-          ### ⚙️ Restore .NET dependencies
+          # ⚙️ Restore .NET backend dependencies
           - task: DotNetCoreCLI@2
             inputs:
               command: 'restore'
               projects: '$(backendProject)'
+            displayName: 'Restore Backend Dependencies'
 
-          ### 🔨 Build .NET backend
+          # 🔨 Build .NET Backend
           - task: DotNetCoreCLI@2
             inputs:
               command: 'build'
               projects: '$(backendProject)'
               arguments: '--configuration $(configuration)'
+            displayName: 'Build Backend'
 
-          ### ⚙️ Set up Node.js
+          # ⚙️ Install Node.js for Vite build
           - task: NodeTool@0
             inputs:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js'
 
-          ### 🔨 Install & Build React frontend
+          # 🔨 Install & Build Vite Frontend (in repo root)
           - script: |
               npm install
               npm run build
-            displayName: 'Build React Frontend'
+            displayName: 'Build Vite Frontend'
 
-          ### 📦 Publish frontend artifact
+          # ✅ Optional debug log
+          - script: |
+              echo "Listing frontend dist directory:"
+              dir dist
+            displayName: 'List Dist Directory (Debug)'
+
+          # 📦 Publish Frontend Artifact
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: 'dist'  
+              PathtoPublish: 'dist'
               ArtifactName: '$(artifactFrontend)'
               publishLocation: 'Container'
             displayName: 'Publish Frontend Artifact'
 
-          ### 🔨 Publish backend output
+          # 🔨 Publish .NET Backend Output
           - task: DotNetCoreCLI@2
             inputs:
               command: 'publish'
@@ -73,7 +82,7 @@ stages:
               zipAfterPublish: true
             displayName: 'Publish Backend Output'
 
-          ### 📦 Publish backend artifact
+          # 📦 Publish Backend Artifact
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: '$(publishDir)'
