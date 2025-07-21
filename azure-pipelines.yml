@@ -59,7 +59,7 @@ stages:
           ### 📦 Publish frontend artifact
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: 'frontend/dist'  # Adjust if build folder path is different
+              PathtoPublish: 'dist'  
               ArtifactName: '$(artifactFrontend)'
               publishLocation: 'Container'
             displayName: 'Publish Frontend Artifact'
