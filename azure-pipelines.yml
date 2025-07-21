@@ -3,65 +3,81 @@ trigger:
     include:
       - main
 
-name: SmartFeedback_$(Date:yyyyMMdd)$(Rev:.r)
+pool:
+  name: Default  # Or 'windows-latest' if using Microsoft-hosted agents
 
 variables:
-- name: backendProject
-  value: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
-- name: nodeVersion
-  value: '18.x'
+  backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
+  nodeVersion: '18.x'
+  configuration: 'Release'
+  artifactFrontend: 'frontend-dist'
+  artifactBackend: 'backend-api'
+  publishDir: '$(Build.ArtifactStagingDirectory)'
 
+stages:
+  - stage: Build
+    displayName: 'Build Backend and Frontend'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Job'
+        steps:
 
-steps:
-  # Checkout code
-  - task: Checkout@1
+          ### 🔁 Checkout the repo
+          - checkout: self
 
-  # Set up .NET SDK
-  - task: UseDotNet@2
-    inputs:
-      packageType: 'sdk'
-      version: '9.x.x'
+          ### ⚙️ Set up .NET SDK
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '9.0.x'
 
-  # Restore and build backend
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'restore'
-      projects: '$(backendProject)'
+          ### ⚙️ Restore .NET dependencies
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'restore'
+              projects: '$(backendProject)'
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      projects: '$(backendProject)'
-      arguments: '--configuration Release'
+          ### 🔨 Build .NET backend
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+              projects: '$(backendProject)'
+              arguments: '--configuration $(configuration)'
 
-  # Set up Node.js for React
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '$(nodeVersion)'
+          ### ⚙️ Set up Node.js
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+            displayName: 'Install Node.js'
 
-  # Install and build frontend (from repo root)
-  - script: |
-      npm install
-      npm run build
-    displayName: 'Build React Frontend'
+          ### 🔨 Install & Build React frontend
+          - script: |
+              cd frontend  # Change if your frontend is in a subfolder
+              npm install
+              npm run build
+            displayName: 'Build React Frontend'
 
-  # Publish frontend build artifacts (Vite outputs to /dist)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: 'dist'
-      ArtifactName: 'frontend-dist'
-      publishLocation: 'Container'
+          ### 📦 Publish frontend artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'frontend/dist'  # Adjust if build folder path is different
+              ArtifactName: '$(artifactFrontend)'
+              publishLocation: 'Container'
+            displayName: 'Publish Frontend Artifact'
 
-  # Publish backend artifacts
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'publish'
-      publishWebProjects: true
-      arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
-      zipAfterPublish: true
+          ### 🔨 Publish backend output
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'publish'
+              projects: '$(backendProject)'
+              arguments: '--configuration $(configuration) --output $(publishDir)'
+              zipAfterPublish: true
+            displayName: 'Publish Backend Output'
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'backend-api'
-      publishLocation: 'Container'
+          ### 📦 Publish backend artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(publishDir)'
+              ArtifactName: '$(artifactBackend)'
+              publishLocation: 'Container'
+            displayName: 'Publish Backend Artifact'
