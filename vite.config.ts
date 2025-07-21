@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     outDir: 'dist'
   },
-  base: './' // <--- ADD THIS LINE to fix relative paths
+  base: './'
 })
 
 
