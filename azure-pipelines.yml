@@ -90,6 +90,8 @@ stages:
   jobs:
   - job: DeployFrontendJob
     displayName: 'Deploy Frontend to Azure Static Web App'
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
     - download: current
       artifact: frontend
