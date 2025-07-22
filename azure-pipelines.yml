@@ -9,29 +9,25 @@ pool:
 variables:
   backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
   nodeVersion: '20.x'
-  deploymentToken: '6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00'  # Replace or use pipeline secret
+  # deploymentToken is stored as secret in UI, not here
 
 stages:
 - stage: Build
   jobs:
   - job: BuildJob
     steps:
-    # ✅ Checkout code
     - checkout: self
 
-    # ✅ Install Node.js
     - task: NodeTool@0
       inputs:
         versionSpec: '$(nodeVersion)'
       displayName: 'Install Node.js'
 
-    # ✅ Install frontend dependencies
     - script: |
         echo Installing frontend dependencies...
         npm install
       displayName: 'Install Frontend Dependencies'
 
-    # ✅ Build frontend
     - script: |
         echo Building frontend with Vite...
         npm run build
@@ -39,7 +35,6 @@ stages:
         dir dist
       displayName: 'Build Frontend (Vite)'
 
-    # ✅ Publish frontend artifact
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: 'dist'
@@ -47,21 +42,18 @@ stages:
         publishLocation: 'Container'
       displayName: 'Publish Frontend Artifact'
 
-    # ✅ Install .NET SDK
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
         version: '9.0.x'
       displayName: 'Install .NET 9 SDK'
 
-    # ✅ Restore .NET dependencies
     - task: DotNetCoreCLI@2
       inputs:
         command: 'restore'
         projects: '$(backendProject)'
       displayName: 'Restore .NET Dependencies'
 
-    # ✅ Build .NET backend
     - task: DotNetCoreCLI@2
       inputs:
         command: 'build'
@@ -69,7 +61,6 @@ stages:
         arguments: '--configuration Release'
       displayName: 'Build .NET Backend'
 
-    # ✅ Publish .NET backend
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
@@ -77,7 +68,6 @@ stages:
         arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
       displayName: 'Publish .NET Backend'
 
-    # ✅ Publish backend artifact
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -88,15 +78,27 @@ stages:
 - stage: DeployFrontend
   dependsOn: Build
   jobs:
-  - job: DeployFrontendJob
-    displayName: 'Deploy Frontend to Azure Static Web App'
+  - job: DeployJob
     steps:
     - download: current
       artifact: frontend
 
-    - task: AzureStaticWebApp@0
+    - task: PowerShell@2
+      displayName: 'Deploy Frontend via Azure CLI'
       inputs:
-        app_location: ''  # Because frontend is built at root
-        output_location: '$(Pipeline.Workspace)/frontend'
-        azure_static_web_apps_api_token: '$(deploymentToken)'
-      displayName: 'Deploy Frontend to Azure Static Web App'
+        targetType: 'inline'
+        script: |
+          $appName = "Smart-Feedback-Frontend"
+          $resourceGroup = "Feedback"
+          $subscriptionId = "aed6e21e-3a43-4ea3-a54d-d1b818c1d02c"
+          $sourcePath = "$(Pipeline.Workspace)\frontend"
+
+          az extension add --name staticwebapp
+
+          Write-Host "Deploying Static Web App..."
+          az staticwebapp upload `
+            --name $appName `
+            --resource-group $resourceGroup `
+            --subscription $subscriptionId `
+            --source "$sourcePath" `
+            --token "$(deploymentToken)"
