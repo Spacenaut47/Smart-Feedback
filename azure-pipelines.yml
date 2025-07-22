@@ -97,8 +97,12 @@ stages:
           Write-Host "Installing Azure CLI extension..."
           az extension add --name staticwebapp
 
-          Write-Host "Logging in..."
-          az login --identity || az account set --subscription "$subscriptionId"
+          Write-Host "Logging into Azure..."
+          $login = az login --identity 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Login with identity failed, trying to set subscription directly..."
+            az account set --subscription "$subscriptionId"
+          }
 
           Write-Host "Uploading frontend content from $sourcePath"
           az staticwebapp upload `
