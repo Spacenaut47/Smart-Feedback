@@ -92,13 +92,18 @@ stages:
           $resourceGroup = "Feedback"
           $subscriptionId = "aed6e21e-3a43-4ea3-a54d-d1b818c1d02c"
           $sourcePath = "$(Pipeline.Workspace)\frontend"
+          $deploymentToken = "$(deploymentToken)"
 
+          Write-Host "Installing Azure CLI extension..."
           az extension add --name staticwebapp
 
-          Write-Host "Deploying Static Web App..."
+          Write-Host "Logging in..."
+          az login --identity || az account set --subscription "$subscriptionId"
+
+          Write-Host "Uploading frontend content from $sourcePath"
           az staticwebapp upload `
             --name $appName `
             --resource-group $resourceGroup `
             --subscription $subscriptionId `
             --source "$sourcePath" `
-            --token "$(deploymentToken)"
+            --token "$deploymentToken"
