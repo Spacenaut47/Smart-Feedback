@@ -9,73 +9,94 @@ pool:
 variables:
   backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
   nodeVersion: '20.x'
+  deploymentToken: '6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00'  # Replace or use pipeline secret
 
-steps:
-# ✅ Checkout code
-- checkout: self
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    # ✅ Checkout code
+    - checkout: self
 
-# ✅ Install Node.js 20
-- task: NodeTool@0
-  inputs:
-    versionSpec: '$(nodeVersion)'
-  displayName: 'Install Node.js'
+    # ✅ Install Node.js
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Install Node.js'
 
-# ✅ Install frontend dependencies (assuming frontend is at repo root)
-- script: |
-    echo Installing frontend dependencies...
-    npm install
-  displayName: 'Install Frontend Dependencies'
+    # ✅ Install frontend dependencies
+    - script: |
+        echo Installing frontend dependencies...
+        npm install
+      displayName: 'Install Frontend Dependencies'
 
-# ✅ Build frontend using Vite
-- script: |
-    echo Building frontend with Vite...
-    npm run build
-    echo Listing dist contents...
-    dir dist
-  displayName: 'Build Frontend (Vite)'
+    # ✅ Build frontend
+    - script: |
+        echo Building frontend with Vite...
+        npm run build
+        echo Listing dist contents...
+        dir dist
+      displayName: 'Build Frontend (Vite)'
 
-# ✅ Publish frontend artifact (dist folder)
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'dist'
-    ArtifactName: 'frontend'
-    publishLocation: 'Container'
-  displayName: 'Publish Frontend Artifact'
+    # ✅ Publish frontend artifact
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'dist'
+        ArtifactName: 'frontend'
+        publishLocation: 'Container'
+      displayName: 'Publish Frontend Artifact'
 
-# ✅ Install .NET SDK
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '9.0.x'
-  displayName: 'Install .NET 9 SDK'
+    # ✅ Install .NET SDK
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '9.0.x'
+      displayName: 'Install .NET 9 SDK'
 
-# ✅ Restore .NET dependencies
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    projects: '$(backendProject)'
-  displayName: 'Restore .NET Dependencies'
+    # ✅ Restore .NET dependencies
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: '$(backendProject)'
+      displayName: 'Restore .NET Dependencies'
 
-# ✅ Build .NET backend
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: '$(backendProject)'
-    arguments: '--configuration Release'
-  displayName: 'Build .NET Backend'
+    # ✅ Build .NET backend
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '$(backendProject)'
+        arguments: '--configuration Release'
+      displayName: 'Build .NET Backend'
 
-# ✅ Publish .NET backend
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    projects: '$(backendProject)'
-    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
-  displayName: 'Publish .NET Backend'
+    # ✅ Publish .NET backend
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        projects: '$(backendProject)'
+        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+      displayName: 'Publish .NET Backend'
 
-# ✅ Publish backend artifact
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'backend'
-    publishLocation: 'Container'
-  displayName: 'Publish Backend Artifact'
+    # ✅ Publish backend artifact
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'backend'
+        publishLocation: 'Container'
+      displayName: 'Publish Backend Artifact'
+
+- stage: DeployFrontend
+  dependsOn: Build
+  jobs:
+  - job: DeployFrontendJob
+    displayName: 'Deploy Frontend to Azure Static Web App'
+    steps:
+    - download: current
+      artifact: frontend
+
+    - task: AzureStaticWebApp@0
+      inputs:
+        app_location: ''  # Because frontend is built at root
+        output_location: '$(Pipeline.Workspace)/frontend'
+        azure_static_web_apps_api_token: '$(deploymentToken)'
+      displayName: 'Deploy Frontend to Azure Static Web App'
