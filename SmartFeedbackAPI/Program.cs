@@ -41,7 +41,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5200",
-            "https://smart-feedback-backend-aqgu.onrender.com"
+            "https://smart-feedback-backend-aqgu.onrender.com",
+            "https://icy-hill-01a11df00-preview.eastasia.1.azurestaticapps.net/"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
