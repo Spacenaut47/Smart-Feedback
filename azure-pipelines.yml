@@ -9,7 +9,7 @@ pool:
 variables:
   backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
   nodeVersion: '20.x'
-  # deploymentToken is stored as secret in UI, not here
+  deploymentToken: 'PASTE_YOUR_TOKEN_HERE6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00'
 
 stages:
 - stage: Build
