@@ -10,8 +10,7 @@ variables:
   backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
   nodeVersion: '20.x'
   deploymentToken: '6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00'
-  backendAppName: 'smartfeedback-api'  # Your App Service name
-  azureServiceConnection: 'Azure-Production'  # Your service connection name
+
 
 stages:
 - stage: Build
@@ -98,20 +97,3 @@ stages:
 
           Write-Host "Deploying frontend content from $sourcePath"
           swa deploy --deployment-token $deploymentToken --app-location "$sourcePath"
-
-- stage: DeployBackend
-  dependsOn: Build
-  jobs:
-  - job: DeployBackendJob
-    steps:
-    - download: current
-      artifact: backend
-
-    - task: AzureWebApp@1
-      displayName: 'Deploy Backend to Azure App Service'
-      inputs:
-        azureSubscription: '$(azureServiceConnection)'
-        appType: 'webApp'
-        appName: '$(backendAppName)'
-        package: '$(Pipeline.Workspace)/backend'
-        deploymentMethod: 'auto'
