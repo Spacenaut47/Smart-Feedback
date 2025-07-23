@@ -7,85 +7,114 @@ pool:
   name: Default
 
 variables:
-  backendProject: "SmartFeedbackAPI/SmartFeedbackAPI.csproj"
-  nodeVersion: "20.x"
-  deploymentToken: "6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00"
+  backendProject: 'SmartFeedbackAPI/SmartFeedbackAPI.csproj'
+  nodeVersion: '20.x'
+  deploymentToken: '6842924c20bfddccda40879ddb2ff503d1650b7507c8fda893050b1916d6936a01-3470d4b8-9e6f-4830-97a5-c8cd974165a6000051301a11df00'
 
 stages:
-  - stage: Build
-    jobs:
-      - job: BuildJob
-        steps:
-          - checkout: self
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - checkout: self
 
-          - task: NodeTool@0
-            inputs:
-              versionSpec: "$(nodeVersion)"
-            displayName: "Install Node.js"
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Install Node.js'
 
-          - script: |
-              echo Installing frontend dependencies...
-              npm install
-            displayName: "Install Frontend Dependencies"
+    - script: |
+        echo Installing frontend dependencies...
+        npm install
+      displayName: 'Install Frontend Dependencies'
 
-          - script: |
-              echo Building frontend with Vite...
-              npm run build
-              echo Listing dist contents...
-              dir dist
-            displayName: "Build Frontend (Vite)"
+    - script: |
+        echo Building frontend with Vite...
+        npm run build
+        echo Listing dist contents...
+        dir dist
+      displayName: 'Build Frontend (Vite)'
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: "dist"
-              ArtifactName: "frontend"
-              publishLocation: "Container"
-            displayName: "Publish Frontend Artifact"
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'dist'
+        ArtifactName: 'frontend'
+        publishLocation: 'Container'
+      displayName: 'Publish Frontend Artifact'
 
-          - task: UseDotNet@2
-            inputs:
-              packageType: "sdk"
-              version: "9.0.x"
-            displayName: "Install .NET 9 SDK"
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '9.0.x'
+      displayName: 'Install .NET 9 SDK'
 
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "restore"
-              projects: "$(backendProject)"
-            displayName: "Restore .NET Dependencies"
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: '$(backendProject)'
+      displayName: 'Restore .NET Dependencies'
 
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "$(backendProject)"
-              arguments: "--configuration Release"
-            displayName: "Build .NET Backend"
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '$(backendProject)'
+        arguments: '--configuration Release'
+      displayName: 'Build .NET Backend'
 
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "publish"
-              projects: "$(backendProject)"
-              arguments: "--configuration Release --output $(Build.ArtifactStagingDirectory)"
-            displayName: "Publish .NET Backend"
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        projects: '$(backendProject)'
+        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+      displayName: 'Publish .NET Backend'
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-              ArtifactName: "backend"
-              publishLocation: "Container"
-            displayName: "Publish Backend Artifact"
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'backend'
+        publishLocation: 'Container'
+      displayName: 'Publish Backend Artifact'
 
-  - stage: DeployFrontend
-    dependsOn: Build
-    jobs:
-      - job: DeployJob
-        steps:
-          - download: current
-            artifact: frontend
+- stage: DeployFrontend
+  dependsOn: Build
+  jobs:
+  - job: DeployJob
+    steps:
+    - download: current
+      artifact: frontend
 
-          - task: AzureStaticWebApp@0
-    displayName: "Deploy Frontend to Azure Static Web App"
-    inputs:
-      app_location: "/" # Adjust if your app is in a subfolder
-      output_location: "dist" # Replace with your actual build output folder (e.g., 'build' or 'dist')
-      azure_static_web_apps_api_token: $(deploymentToken)
+    - task: PowerShell@2
+      displayName: 'Deploy Frontend via Azure CLI'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $appName = "Smart-Feedback-Frontend"
+          $resourceGroup = "Feedback"
+          $subscriptionId = "aed6e21e-3a43-4ea3-a54d-d1b818c1d02c"
+          $sourcePath = "$(Pipeline.Workspace)\frontend"
+          $deploymentToken = "$(deploymentToken)"
+
+          Write-Host "Installing Azure CLI extension..."
+          az extension add --name staticwebapp --allow-preview true
+
+          Write-Host "Logging into Azure..."
+          $login = az login --service-principal `
+            --username "fe0e03ec-2369-4433-9df6-ca03d70578f4" `
+            --password "Ytk8Q~yXCPdEGibeQDf4kD5KDj96nHvUQHCmtbvC" `
+            --tenant "6faf82bc-8c77-42ba-ac14-d54432da09c5" 2>&1
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Login failed. Please check SPN credentials."
+            exit 1
+          }
+
+          Write-Host "Setting subscription..."
+          az account set --subscription "$subscriptionId"
+
+          Write-Host "Uploading frontend content from $sourcePath"
+          az staticwebapp upload `
+            --name $appName `
+            --resource-group $resourceGroup `
+            --subscription $subscriptionId `
+            --source "$sourcePath" `
+            --token "$deploymentToken"
