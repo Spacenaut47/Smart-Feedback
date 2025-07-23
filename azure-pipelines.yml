@@ -84,37 +84,15 @@ stages:
       artifact: frontend
 
     - task: PowerShell@2
-      displayName: 'Deploy Frontend via Azure CLI'
+      displayName: 'Deploy Frontend using SWA CLI'
       inputs:
         targetType: 'inline'
         script: |
-          $appName = "Smart-Feedback-Frontend"
-          $resourceGroup = "Feedback"
-          $subscriptionId = "aed6e21e-3a43-4ea3-a54d-d1b818c1d02c"
           $sourcePath = "$(Pipeline.Workspace)\frontend"
           $deploymentToken = "$(deploymentToken)"
 
-          Write-Host "Installing Azure CLI extension..."
-          az extension add --name staticwebapp --allow-preview true
+          Write-Host "Installing SWA CLI..."
+          npm install -g @azure/static-web-apps-cli
 
-          Write-Host "Logging into Azure..."
-          $login = az login --service-principal `
-            --username "fe0e03ec-2369-4433-9df6-ca03d70578f4" `
-            --password "Ytk8Q~yXCPdEGibeQDf4kD5KDj96nHvUQHCmtbvC" `
-            --tenant "6faf82bc-8c77-42ba-ac14-d54432da09c5" 2>&1
-          
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Login failed. Please check SPN credentials."
-            exit 1
-          }
-
-          Write-Host "Setting subscription..."
-          az account set --subscription "$subscriptionId"
-
-          Write-Host "Uploading frontend content from $sourcePath"
-          az staticwebapp upload `
-            --name $appName `
-            --resource-group $resourceGroup `
-            --subscription $subscriptionId `
-            --source "$sourcePath" `
-            --token "$deploymentToken"
+          Write-Host "Deploying frontend content from $sourcePath"
+          swa deploy --deployment-token $deploymentToken --app-location "$sourcePath"
