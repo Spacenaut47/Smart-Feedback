@@ -99,9 +99,9 @@ stages:
 
           Write-Host "Logging into Azure..."
           $login = az login --service-principal `
-            --username "$(fe0e03ec-2369-4433-9df6-ca03d70578f4)" `
-            --password "$(Ytk8Q~yXCPdEGibeQDf4kD5KDj96nHvUQHCmtbvC)" `
-            --tenant "$(6faf82bc-8c77-42ba-ac14-d54432da09c5)" 2>&1
+            --username "fe0e03ec-2369-4433-9df6-ca03d70578f4" `
+            --password "Ytk8Q~yXCPdEGibeQDf4kD5KDj96nHvUQHCmtbvC" `
+            --tenant "6faf82bc-8c77-42ba-ac14-d54432da09c5" 2>&1
           
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Login failed. Please check SPN credentials."
