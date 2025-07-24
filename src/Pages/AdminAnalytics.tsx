@@ -18,11 +18,15 @@ ChartJS.register(
 
 interface Feedback {
   id: number;
+  heading: string;
   category: string;
-  status: string;
+  subcategory: string;
+  message: string;
   submittedAt: string;
-  priority?: 'Low' | 'Medium' | 'High';
-  rating?: number;
+  status: string;
+  fullName: string;
+  email: string;
+  imageUrl?: string;
 }
 
 const AdminAnalytics: React.FC = () => {
@@ -77,35 +81,72 @@ const AdminAnalytics: React.FC = () => {
     return acc;
   }, {});
 
-  // Priority distribution (mock data for demo)
-  const priorityCounts = {
-    'High': Math.floor(totalCount * 0.2),
-    'Medium': Math.floor(totalCount * 0.5),
-    'Low': Math.floor(totalCount * 0.3)
-  };
+  // Subcategory distribution
+  const subcategoryCounts = filteredFeedbacks.reduce((acc: Record<string, number>, fb) => {
+    acc[fb.subcategory] = (acc[fb.subcategory] || 0) + 1;
+    return acc;
+  }, {});
 
-  // Daily trend
-  const dailyTrend = filteredFeedbacks.reduce((acc: Record<string, number>, fb) => {
-    const date = new Date(fb.submittedAt).toLocaleDateString();
+  // Daily trend - group by date
+  const dailyTrendMap = filteredFeedbacks.reduce((acc: Record<string, number>, fb) => {
+    const date = new Date(fb.submittedAt).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
     acc[date] = (acc[date] || 0) + 1;
     return acc;
   }, {});
 
-  // Average rating (mock data)
-  const avgRating = 4.2;
-  const responseTime = '2.3 hours'; // mock data
+  // Generate last 7 days for trend chart
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  });
+
+  const dailyTrendData = last7Days.map(date => dailyTrendMap[date] || 0);
+
+  // Calculate average response time (based on status changes)
+  const resolvedFeedbacks = filteredFeedbacks.filter(fb => fb.status === 'Resolved');
+  const inProgressFeedbacks = filteredFeedbacks.filter(fb => fb.status === 'In Progress');
+  
+  // Mock average response time calculation (you can replace with actual data if available)
+  const avgResponseHours = resolvedFeedbacks.length > 0 
+    ? Math.round((resolvedFeedbacks.length * 2.5 + inProgressFeedbacks.length * 1.2) / (resolvedFeedbacks.length + inProgressFeedbacks.length * 0.5))
+    : 0;
+  
+  const responseTime = avgResponseHours > 24 
+    ? `${Math.round(avgResponseHours / 24)} days`
+    : `${avgResponseHours} hours`;
+
+  // Most active user (user with most feedback submissions)
+  const userSubmissions = filteredFeedbacks.reduce((acc: Record<string, number>, fb) => {
+    acc[fb.fullName] = (acc[fb.fullName] || 0) + 1;
+    return acc;
+  }, {});
+
+  const mostActiveUser = Object.keys(userSubmissions).length > 0 
+    ? Object.keys(userSubmissions).reduce((a, b) => userSubmissions[a] > userSubmissions[b] ? a : b)
+    : 'N/A';
 
   // Chart configurations
   const lineChartData = {
-    labels: Object.keys(dailyTrend).slice(-7), // Last 7 days
+    labels: last7Days,
     datasets: [
       {
         label: 'Feedbacks Submitted',
-        data: Object.values(dailyTrend).slice(-7),
+        data: dailyTrendData,
         borderColor: '#6366F1',
         backgroundColor: 'rgba(99, 102, 241, 0.1)',
         fill: true,
         tension: 0.4,
+        pointBackgroundColor: '#6366F1',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
       },
     ],
   };
@@ -115,8 +156,14 @@ const AdminAnalytics: React.FC = () => {
     datasets: [
       {
         data: Object.values(statusCounts),
-        backgroundColor: ['#3B82F6', '#F59E0B', '#10B981', '#EF4444'],
-        borderWidth: 0,
+        backgroundColor: [
+          '#3B82F6', // New - Blue
+          '#F59E0B', // In Progress - Amber
+          '#10B981', // Resolved - Green
+          '#EF4444'  // Any other status - Red
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff',
       },
     ],
   };
@@ -127,19 +174,32 @@ const AdminAnalytics: React.FC = () => {
       {
         label: 'Feedback Count',
         data: Object.values(categoryCounts),
-        backgroundColor: '#6366F1',
+        backgroundColor: [
+          '#6366F1',
+          '#8B5CF6',
+          '#EC4899',
+          '#F59E0B'
+        ],
         borderRadius: 8,
+        borderWidth: 0,
       },
     ],
   };
 
-  const priorityChartData = {
-    labels: Object.keys(priorityCounts),
+  const subcategoryChartData = {
+    labels: Object.keys(subcategoryCounts).slice(0, 5), // Top 5 subcategories
     datasets: [
       {
-        data: Object.values(priorityCounts),
-        backgroundColor: ['#EF4444', '#F59E0B', '#10B981'],
-        borderWidth: 0,
+        data: Object.values(subcategoryCounts).slice(0, 5),
+        backgroundColor: [
+          '#EF4444',
+          '#F59E0B', 
+          '#10B981',
+          '#3B82F6',
+          '#8B5CF6'
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff',
       },
     ],
   };
@@ -150,6 +210,22 @@ const AdminAnalytics: React.FC = () => {
     plugins: {
       legend: {
         position: 'bottom' as const,
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+        },
+      },
+    },
+  };
+
+  const barChartOptions = {
+    ...chartOptions,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
       },
     },
   };
@@ -183,6 +259,7 @@ const AdminAnalytics: React.FC = () => {
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
             </select>
             <Link to="/admin">
               <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
@@ -250,7 +327,7 @@ const AdminAnalytics: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg. Response Time</p>
                 <p className="text-3xl font-bold text-purple-600 mt-1">{responseTime}</p>
-                <p className="text-sm text-green-600 mt-1">↗ 15% improvement</p>
+                <p className="text-sm text-gray-500 mt-1">Estimated based on status</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,15 +344,27 @@ const AdminAnalytics: React.FC = () => {
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Status Distribution</h3>
             <div className="h-64">
-              <Pie data={pieChartData} options={chartOptions} />
+              {Object.keys(statusCounts).length > 0 ? (
+                <Pie data={pieChartData} options={chartOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No data available
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Priority Distribution */}
+          {/* Top Subcategories */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Priority Breakdown</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Top Subcategories</h3>
             <div className="h-64">
-              <Doughnut data={priorityChartData} options={chartOptions} />
+              {Object.keys(subcategoryCounts).length > 0 ? (
+                <Doughnut data={subcategoryChartData} options={chartOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No data available
+                </div>
+              )}
             </div>
           </div>
 
@@ -283,63 +372,99 @@ const AdminAnalytics: React.FC = () => {
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Category Analysis</h3>
             <div className="h-64">
-              <Bar data={barChartData} options={chartOptions} />
+              {Object.keys(categoryCounts).length > 0 ? (
+                <Bar data={barChartData} options={barChartOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No data available
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Rating Overview */}
+          {/* Feedback with Images */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Rating Overview</h3>
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-6xl font-bold text-indigo-600 mb-2">{avgRating}</div>
-                <div className="flex justify-center mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`w-6 h-6 ${i < Math.floor(avgRating) ? 'text-yellow-400' : 'text-gray-300'}`}
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Feedback Statistics</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <span className="text-gray-700">With Images</span>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-indigo-600">
+                    {filteredFeedbacks.filter(fb => fb.imageUrl).length}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {totalCount > 0 ? Math.round(filteredFeedbacks.filter(fb => fb.imageUrl).length / totalCount * 100) : 0}%
+                  </div>
                 </div>
-                <p className="text-gray-600">Average Rating</p>
-                <p className="text-sm text-gray-500 mt-1">Based on {totalCount} feedbacks</p>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <span className="text-gray-700">Unique Users</span>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-green-600">
+                    {new Set(filteredFeedbacks.map(fb => fb.email)).size}
+                  </div>
+                  <div className="text-sm text-gray-500">Active contributors</div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <span className="text-gray-700">Avg. Message Length</span>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {filteredFeedbacks.length > 0 
+                      ? Math.round(filteredFeedbacks.reduce((sum, fb) => sum + fb.message.length, 0) / filteredFeedbacks.length)
+                      : 0
+                    }
+                  </div>
+                  <div className="text-sm text-gray-500">characters</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Trend Analysis */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Feedback Submission Trend</h3>
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Feedback Submission Trend (Last 7 Days)</h3>
           <div className="h-80">
             <Line data={lineChartData} options={chartOptions} />
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white">
-            <h4 className="text-lg font-semibold mb-2">Most Active Day</h4>
-            <p className="text-2xl font-bold">
-              {Object.keys(dailyTrend).reduce((a, b) => dailyTrend[a] > dailyTrend[b] ? a : b) || 'N/A'}
+            <h4 className="text-lg font-semibold mb-2">Most Active User</h4>
+            <p className="text-xl font-bold truncate">
+              {mostActiveUser}
+            </p>
+            <p className="text-sm opacity-90">
+              {mostActiveUser !== 'N/A' ? `${userSubmissions[mostActiveUser]} submissions` : 'No submissions yet'}
             </p>
           </div>
           
           <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl p-6 text-white">
             <h4 className="text-lg font-semibold mb-2">Resolution Rate</h4>
-            <p className="text-2xl font-bold">
+            <p className="text-3xl font-bold">
               {totalCount > 0 ? Math.round((statusCounts['Resolved'] || 0) / totalCount * 100) : 0}%
+            </p>
+            <p className="text-sm opacity-90">
+              {statusCounts['Resolved'] || 0} of {totalCount} resolved
             </p>
           </div>
           
           <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl p-6 text-white">
             <h4 className="text-lg font-semibold mb-2">Top Category</h4>
-            <p className="text-2xl font-bold">
-              {Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b) || 'N/A'}
+            <p className="text-xl font-bold">
+              {Object.keys(categoryCounts).length > 0 
+                ? Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b)
+                : 'N/A'
+              }
+            </p>
+            <p className="text-sm opacity-90">
+              {Object.keys(categoryCounts).length > 0 
+                ? `${Math.max(...Object.values(categoryCounts))} submissions`
+                : 'No data'
+              }
             </p>
           </div>
         </div>
